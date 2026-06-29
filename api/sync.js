@@ -42,15 +42,8 @@ export default async function handler(req, res) {
         const margonemData = await response.json();
         const players = Object.values(margonemData);
         
-        // Zabezpieczenie przed GMami: nowy gracz musi pojawić się z 1 poziomem.
-        const validPlayers = players.filter(p => {
-            const currentLevel = parseInt(p.l);
-            const isKnown = !!state.ranking[p.c];
-            if (!isKnown && currentLevel >= 2) {
-                return false; // To GM, ignorujemy
-            }
-            return true;
-        });
+        // Pobieramy wszystkich graczy bez żadnych limitów i filtrów
+        const validPlayers = players;
         
         state.onlinePlayersCount = validPlayers.length;
         
