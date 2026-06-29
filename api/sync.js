@@ -54,6 +54,9 @@ export default async function handler(req, res) {
             state.serverStartTime = Date.now();
         }
 
+        if (!state.milestones) state.milestones = {};
+        const milestoneLevels = [50, 67, 100, 150, 200, 250, 300];
+
         const nextRanking = { ...state.ranking };
         validPlayers.forEach(p => {
             const currentLevel = parseInt(p.l);
@@ -65,6 +68,21 @@ export default async function handler(req, res) {
                 nextRanking[p.c].lastSeen = Date.now();
                 nextRanking[p.c].p = p.p;
             }
+            
+            // Sprawdzenie kamieni milowych
+            const playerMaxLevel = nextRanking[p.c].maxLevel;
+            milestoneLevels.forEach(lvl => {
+                if (playerMaxLevel >= lvl && !state.milestones[lvl]) {
+                    state.milestones[lvl] = {
+                        a: p.a,
+                        c: p.c,
+                        n: p.n,
+                        p: p.p,
+                        date: Date.now(),
+                        timeSinceStart: state.serverStartTime ? (Date.now() - state.serverStartTime) : 0
+                    };
+                }
+            });
         });
         
         state.ranking = nextRanking;

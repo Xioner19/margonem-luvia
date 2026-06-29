@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react';
 import type { RankedPlayer } from './types';
-import { Trophy, Clock, Users, RefreshCw } from 'lucide-react';
+import { Trophy, Clock, Users, RefreshCw, Target, Award } from 'lucide-react';
 import { formatDistanceToNowStrict } from 'date-fns';
 import { pl } from 'date-fns/locale';
 
 function App() {
   const world = 'luvia';
   const [ranking, setRanking] = useState<Record<string, RankedPlayer>>({});
+  const [milestones, setMilestones] = useState<Record<string, any>>({});
   const [serverStartTime, setServerStartTime] = useState<number | null>(null);
   const [uptime, setUptime] = useState<string>('0s');
   const [loading, setLoading] = useState(false);
@@ -29,6 +30,7 @@ function App() {
         
         if (mounted && data) {
             setRanking(data.ranking || {});
+            setMilestones(data.milestones || {});
             setServerStartTime(data.serverStartTime);
             setOnlinePlayersCount(data.onlinePlayersCount || 0);
         }
@@ -83,7 +85,23 @@ function App() {
       return names[prof] || 'Nieznana';
   }
 
+  const formatDuration = (ms: number) => {
+      if (!ms || ms < 0) return '0s';
+      const seconds = Math.floor((ms / 1000) % 60);
+      const minutes = Math.floor((ms / (1000 * 60)) % 60);
+      const hours = Math.floor((ms / (1000 * 60 * 60)) % 24);
+      const days = Math.floor(ms / (1000 * 60 * 60 * 24));
+      
+      const parts = [];
+      if (days > 0) parts.push(`${days}d`);
+      if (hours > 0) parts.push(`${hours}h`);
+      if (minutes > 0) parts.push(`${minutes}m`);
+      parts.push(`${seconds}s`);
+      return parts.join(' ');
+  };
+
   const sortedRanking = Object.values(ranking).sort((a, b) => b.maxLevel - a.maxLevel);
+  const milestoneLevels = [50, 67, 100, 150, 200, 250, 300];
 
   return (
     <div className="min-h-screen bg-[#050505] text-gray-200 font-sans selection:bg-purple-500/30">
@@ -147,6 +165,58 @@ function App() {
                     </div>
                 </div>
                 {loading && <RefreshCw className="w-5 h-5 text-gray-500 animate-spin" />}
+            </div>
+        </div>
+
+        {/* Milestones */}
+        <div className="mb-12">
+            <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
+                <Target className="w-6 h-6 text-yellow-400" />
+                Kamienie Milowe
+            </h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-4">
+                {milestoneLevels.map(lvl => {
+                    const achieved = milestones[lvl];
+                    return (
+                        <div key={lvl} className={`glass-panel p-5 border-l-4 ${achieved ? 'border-l-yellow-400' : 'border-l-gray-700 opacity-60'} flex flex-col justify-between relative overflow-hidden group`}>
+                            {achieved && (
+                                <div className="absolute top-0 right-0 w-24 h-24 bg-yellow-400/5 rounded-bl-full z-0 transition-transform group-hover:scale-110"></div>
+                            )}
+                            <div className="flex justify-between items-start mb-4 relative z-10">
+                                <span className="text-3xl font-black text-white/90">{lvl} <span className="text-sm font-medium text-gray-500">lvl</span></span>
+                                <Award className={`w-8 h-8 ${achieved ? 'text-yellow-400 drop-shadow-[0_0_10px_rgba(250,204,21,0.5)]' : 'text-gray-600'}`} />
+                            </div>
+                            
+                            <div className="relative z-10">
+                                {achieved ? (
+                                    <div>
+                                        <a 
+                                            href={`https://www.margonem.pl/profile/view,${achieved.a}#char_${achieved.c},luvia`}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className={`font-bold text-xl hover:underline ${getProfColor(achieved.p).split(' ')[0]}`}
+                                        >
+                                            {achieved.n}
+                                        </a>
+                                        <div className="mt-3 space-y-1">
+                                            <p className="text-xs text-gray-400 flex items-center gap-1.5">
+                                                <Clock className="w-3 h-3" />
+                                                {new Date(achieved.date).toLocaleString('pl-PL')}
+                                            </p>
+                                            <p className="text-xs font-mono text-purple-300">
+                                                (+{formatDuration(achieved.timeSinceStart)})
+                                            </p>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div className="text-sm text-gray-500 italic mt-auto">
+                                        Jeszcze nie zdobyty...
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    );
+                })}
             </div>
         </div>
 
