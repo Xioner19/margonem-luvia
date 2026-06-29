@@ -35,8 +35,8 @@ export default async function handler(req, res) {
         state = dbData.data;
     }
 
-    // Aktualizacja stanu maksymalnie raz na 15 sekund
-    if (Date.now() - state.lastUpdated > 15000) {
+    // Aktualizacja stanu maksymalnie raz na 45 sekund (Margonem odświeża co 60 sekund)
+    if (Date.now() - state.lastUpdated > 45000) {
         const response = await fetch(`https://staticinfo.margonem.pl/online/${world}.json`);
         if (!response.ok) throw new Error("Failed to fetch from Margonem API");
         const margonemData = await response.json();
