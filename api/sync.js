@@ -43,7 +43,7 @@ export default async function handler(req, res) {
         const players = Object.values(margonemData);
         
         // Pobieramy wszystkich graczy, ale odrzucamy konkretne nicki GMów
-        const blacklistedNames = ['Joan', 'Lance', 'Veynira', 'Nicjam'];
+        const blacklistedNames = ['Joan', 'Lance', 'Veynira', 'Nicjam', 'Mzr'];
         const validPlayers = players.filter(p => !blacklistedNames.includes(p.n));
         
         // Usunięcie zablokowanych graczy z rankingu, jeśli zdążyli się zapisać
