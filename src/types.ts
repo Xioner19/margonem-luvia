@@ -14,4 +14,6 @@ export interface OnlineListResponse {
 export interface RankedPlayer extends OnlinePlayer {
   maxLevel: number;
   lastSeen: number; // timestamp
+  sessionStart?: number;
+  totalTimeOnline?: number;
 }

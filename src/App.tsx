@@ -102,6 +102,19 @@ function App() {
       return parts.join(' ');
   };
 
+  const getPlayerTimeOnline = (player: RankedPlayer) => {
+      let time = player.totalTimeOnline || 0;
+      if (player.sessionStart) {
+          const isOnline = Date.now() - (player.lastSeen || 0) < 120000;
+          if (isOnline) {
+              time += (Date.now() - player.sessionStart);
+          } else {
+              time += (player.lastSeen - player.sessionStart);
+          }
+      }
+      return time;
+  };
+
   const sortedRanking = Object.values(ranking).sort((a, b) => b.maxLevel - a.maxLevel);
   const milestoneLevels = [50, 67, 100, 150, 200, 250, 300];
 
@@ -200,6 +213,7 @@ function App() {
                                     <th className="px-6 py-4 font-medium text-center w-16">#</th>
                                     <th className="px-6 py-4 font-medium">Gracz</th>
                                     <th className="px-6 py-4 font-medium text-center">Profesja</th>
+                                    <th className="px-6 py-4 font-medium text-center">Czas w grze</th>
                                     <th className="px-6 py-4 font-medium text-center">Aktualny Poziom</th>
                                 </tr>
                             </thead>
@@ -240,6 +254,11 @@ function App() {
                                                 <span className={`inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium border ${getProfColor(player.p)}`}>
                                                     {getProfName(player.p)}
                                                 </span>
+                                            </td>
+                                            <td className="px-6 py-4 text-center">
+                                                <div className="text-sm font-mono text-purple-300/80">
+                                                    {formatDuration(getPlayerTimeOnline(player))}
+                                                </div>
                                             </td>
                                             <td className="px-6 py-4 text-center">
                                                 <div className="inline-flex items-center justify-center min-w-[3rem] px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 font-mono text-lg font-bold text-white shadow-inner">

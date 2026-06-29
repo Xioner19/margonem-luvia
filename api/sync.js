@@ -69,15 +69,29 @@ export default async function handler(req, res) {
         const milestoneLevels = [50, 67, 100, 150, 200, 250, 300];
 
         const nextRanking = { ...state.ranking };
+        const now = Date.now();
+        const onlinePlayerIds = new Set(validPlayers.map(p => p.c));
+
         validPlayers.forEach(p => {
             const currentLevel = parseInt(p.l);
             if (!nextRanking[p.c]) {
-                nextRanking[p.c] = { ...p, maxLevel: currentLevel, lastSeen: Date.now() };
+                nextRanking[p.c] = { 
+                    ...p, 
+                    maxLevel: currentLevel, 
+                    lastSeen: now,
+                    sessionStart: now,
+                    totalTimeOnline: 0
+                };
             } else {
-                nextRanking[p.c].l = p.l;
-                nextRanking[p.c].maxLevel = Math.max(nextRanking[p.c].maxLevel, currentLevel);
-                nextRanking[p.c].lastSeen = Date.now();
-                nextRanking[p.c].p = p.p;
+                const rp = nextRanking[p.c];
+                rp.l = p.l;
+                rp.maxLevel = Math.max(rp.maxLevel || 0, currentLevel);
+                rp.p = p.p;
+                
+                if (!rp.sessionStart) {
+                    rp.sessionStart = now;
+                }
+                rp.lastSeen = now;
             }
             
             // Sprawdzenie kamieni milowych
@@ -89,11 +103,24 @@ export default async function handler(req, res) {
                         c: p.c,
                         n: p.n,
                         p: p.p,
-                        date: Date.now(),
-                        timeSinceStart: state.serverStartTime ? (Date.now() - state.serverStartTime) : 0
+                        date: now,
+                        timeSinceStart: state.serverStartTime ? (now - state.serverStartTime) : 0
                     };
                 }
             });
+        });
+
+        // Wylogowani gracze - zamykanie sesji
+        Object.values(nextRanking).forEach(rp => {
+            if (!onlinePlayerIds.has(rp.c)) {
+                if (rp.sessionStart) {
+                    const sessionDuration = rp.lastSeen - rp.sessionStart;
+                    if (sessionDuration > 0) {
+                        rp.totalTimeOnline = (rp.totalTimeOnline || 0) + sessionDuration;
+                    }
+                    delete rp.sessionStart;
+                }
+            }
         });
         
         state.ranking = nextRanking;
