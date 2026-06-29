@@ -13,6 +13,7 @@ function App() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [onlinePlayersCount, setOnlinePlayersCount] = useState<number>(0);
+  const [profStats, setProfStats] = useState<Record<string, number>>({});
 
   // Global state handled by Vercel Serverless Backend
 
@@ -33,6 +34,7 @@ function App() {
             setMilestones(data.milestones || {});
             setServerStartTime(data.serverStartTime);
             setOnlinePlayersCount(data.onlinePlayersCount || 0);
+            setProfStats(data.onlineProfStats || {});
         }
       } catch (e) {
         if (mounted) setError("Błąd podczas pobierania.");
@@ -128,7 +130,7 @@ function App() {
         </header>
 
         {/* Controls */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
             <div className="glass-panel p-4 flex items-center justify-between">
                 <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center border border-blue-500/20">
@@ -165,6 +167,18 @@ function App() {
                     </div>
                 </div>
                 {loading && <RefreshCw className="w-5 h-5 text-gray-500 animate-spin" />}
+            </div>
+
+            <div className="glass-panel p-4 flex flex-col justify-center">
+                <p className="text-xs text-gray-500 font-medium uppercase tracking-wider mb-3">Zalogowane profesje</p>
+                <div className="flex flex-wrap gap-2">
+                    {['w', 'm', 'h', 't', 'p', 'b'].map(prof => (
+                        <div key={prof} className={`px-2 py-1 rounded text-xs font-medium border flex items-center gap-1.5 ${getProfColor(prof)}`} title={getProfName(prof)}>
+                            <span>{getProfName(prof).substring(0, 3)}.</span>
+                            <span className="font-bold bg-black/20 px-1.5 py-0.5 rounded-sm">{profStats[prof] || 0}</span>
+                        </div>
+                    ))}
+                </div>
             </div>
         </div>
 

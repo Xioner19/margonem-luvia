@@ -49,6 +49,12 @@ export default async function handler(req, res) {
         
         state.onlinePlayersCount = validPlayers.length;
         
+        const profStats = { w: 0, m: 0, h: 0, t: 0, p: 0, b: 0 };
+        validPlayers.forEach(p => {
+            if (profStats[p.p] !== undefined) profStats[p.p]++;
+        });
+        state.onlineProfStats = profStats;
+        
         // Start serwera: pierwsza poprawna osoba (poziom 1)
         if (validPlayers.length > 0 && !state.serverStartTime) {
             state.serverStartTime = Date.now();
