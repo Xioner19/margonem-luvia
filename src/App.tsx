@@ -168,122 +168,128 @@ function App() {
             </div>
         </div>
 
-        {/* Milestones */}
-        <div className="mb-12">
-            <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
-                <Target className="w-6 h-6 text-yellow-400" />
-                Kamienie Milowe
-            </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-4">
-                {milestoneLevels.map(lvl => {
-                    const achieved = milestones[lvl];
-                    return (
-                        <div key={lvl} className={`glass-panel p-5 border-l-4 ${achieved ? 'border-l-yellow-400' : 'border-l-gray-700 opacity-60'} flex flex-col justify-between relative overflow-hidden group`}>
-                            {achieved && (
-                                <div className="absolute top-0 right-0 w-24 h-24 bg-yellow-400/5 rounded-bl-full z-0 transition-transform group-hover:scale-110"></div>
-                            )}
-                            <div className="flex justify-between items-start mb-4 relative z-10">
-                                <span className="text-3xl font-black text-white/90">{lvl} <span className="text-sm font-medium text-gray-500">lvl</span></span>
-                                <Award className={`w-8 h-8 ${achieved ? 'text-yellow-400 drop-shadow-[0_0_10px_rgba(250,204,21,0.5)]' : 'text-gray-600'}`} />
-                            </div>
-                            
-                            <div className="relative z-10">
-                                {achieved ? (
-                                    <div>
-                                        <a 
-                                            href={`https://www.margonem.pl/profile/view,${achieved.a}#char_${achieved.c},luvia`}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className={`font-bold text-xl hover:underline ${getProfColor(achieved.p).split(' ')[0]}`}
-                                        >
-                                            {achieved.n}
-                                        </a>
-                                        <div className="mt-3 space-y-1">
-                                            <p className="text-xs text-gray-400 flex items-center gap-1.5">
-                                                <Clock className="w-3 h-3" />
-                                                {new Date(achieved.date).toLocaleString('pl-PL')}
-                                            </p>
-                                            <p className="text-xs font-mono text-purple-300">
-                                                (+{formatDuration(achieved.timeSinceStart)})
-                                            </p>
-                                        </div>
-                                    </div>
-                                ) : (
-                                    <div className="text-sm text-gray-500 italic mt-auto">
-                                        Jeszcze nie zdobyty...
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-                    );
-                })}
-            </div>
-        </div>
-
-        {/* Ranking Table */}
-        <div className="glass-panel overflow-hidden border-t-4 border-t-purple-500">
-            {error && (
-                <div className="bg-red-500/10 text-red-400 p-4 text-center border-b border-red-500/20 text-sm font-medium">
-                    {error}
-                </div>
-            )}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
             
-            <div className="overflow-x-auto">
-                <table className="w-full text-left border-collapse">
-                    <thead>
-                        <tr className="bg-black/40 text-gray-400 text-xs uppercase tracking-wider border-b border-white/5">
-                            <th className="px-6 py-4 font-medium text-center w-16">#</th>
-                            <th className="px-6 py-4 font-medium">Gracz</th>
-                            <th className="px-6 py-4 font-medium text-center">Profesja</th>
-                            <th className="px-6 py-4 font-medium text-center">Max Poziom</th>
-                        </tr>
-                    </thead>
-                    <tbody className="divide-y divide-white/5">
-                        {sortedRanking.length === 0 ? (
-                            <tr>
-                                <td colSpan={4} className="px-6 py-12 text-center text-gray-500">
-                                    Brak graczy do wyświetlenia. Ranking rozpocznie się, gdy ktoś pojawi się na serwerze.
-                                </td>
-                            </tr>
-                        ) : (
-                            sortedRanking.map((player, index) => (
-                                <tr key={player.c} className="hover:bg-white/5 transition-colors group">
-                                    <td className="px-6 py-4 text-center">
-                                        <span className={`inline-flex items-center justify-center w-8 h-8 rounded-full text-sm font-bold ${
-                                            index === 0 ? 'bg-yellow-500/20 text-yellow-500 border border-yellow-500/30 shadow-[0_0_15px_rgba(234,179,8,0.2)]' :
-                                            index === 1 ? 'bg-gray-300/20 text-gray-300 border border-gray-300/30' :
-                                            index === 2 ? 'bg-amber-700/20 text-amber-600 border border-amber-700/30' :
-                                            'text-gray-500'
-                                        }`}>
-                                            {index + 1}
-                                        </span>
-                                    </td>
-                                    <td className="px-6 py-4">
-                                        <a 
-                                            href={`https://www.margonem.pl/profile/view,${player.a}#char_${player.c},luvia`}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="font-medium text-white text-lg hover:text-purple-400 transition-colors cursor-pointer inline-block"
-                                        >
-                                            {player.n}
-                                        </a>
-                                    </td>
-                                    <td className="px-6 py-4 text-center">
-                                        <span className={`inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium border ${getProfColor(player.p)}`}>
-                                            {getProfName(player.p)}
-                                        </span>
-                                    </td>
-                                    <td className="px-6 py-4 text-center">
-                                        <div className="inline-flex items-center justify-center min-w-[3rem] px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 font-mono text-lg font-bold text-white shadow-inner">
-                                            {player.maxLevel}
-                                        </div>
-                                    </td>
+            {/* Ranking Table (Left Side, 2/3 width) */}
+            <div className="lg:col-span-2">
+                <div className="glass-panel overflow-hidden border-t-4 border-t-purple-500 h-full">
+                    {error && (
+                        <div className="bg-red-500/10 text-red-400 p-4 text-center border-b border-red-500/20 text-sm font-medium">
+                            {error}
+                        </div>
+                    )}
+                    
+                    <div className="overflow-x-auto">
+                        <table className="w-full text-left border-collapse">
+                            <thead>
+                                <tr className="bg-black/40 text-gray-400 text-xs uppercase tracking-wider border-b border-white/5">
+                                    <th className="px-6 py-4 font-medium text-center w-16">#</th>
+                                    <th className="px-6 py-4 font-medium">Gracz</th>
+                                    <th className="px-6 py-4 font-medium text-center">Profesja</th>
+                                    <th className="px-6 py-4 font-medium text-center">Aktualny Poziom</th>
                                 </tr>
-                            ))
-                        )}
-                    </tbody>
-                </table>
+                            </thead>
+                            <tbody className="divide-y divide-white/5">
+                                {sortedRanking.length === 0 ? (
+                                    <tr>
+                                        <td colSpan={4} className="px-6 py-12 text-center text-gray-500">
+                                            Brak graczy do wyświetlenia. Ranking rozpocznie się, gdy ktoś pojawi się na serwerze.
+                                        </td>
+                                    </tr>
+                                ) : (
+                                    sortedRanking.map((player, index) => (
+                                        <tr key={player.c} className="hover:bg-white/5 transition-colors group">
+                                            <td className="px-6 py-4 text-center">
+                                                <span className={`inline-flex items-center justify-center w-8 h-8 rounded-full text-sm font-bold ${
+                                                    index === 0 ? 'bg-yellow-500/20 text-yellow-500 border border-yellow-500/30 shadow-[0_0_15px_rgba(234,179,8,0.2)]' :
+                                                    index === 1 ? 'bg-gray-300/20 text-gray-300 border border-gray-300/30' :
+                                                    index === 2 ? 'bg-amber-700/20 text-amber-600 border border-amber-700/30' :
+                                                    'text-gray-500'
+                                                }`}>
+                                                    {index + 1}
+                                                </span>
+                                            </td>
+                                            <td className="px-6 py-4">
+                                                <a 
+                                                    href={`https://www.margonem.pl/profile/view,${player.a}#char_${player.c},luvia`}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="font-medium text-white text-lg hover:text-purple-400 transition-colors cursor-pointer inline-block"
+                                                >
+                                                    {player.n}
+                                                </a>
+                                            </td>
+                                            <td className="px-6 py-4 text-center">
+                                                <span className={`inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium border ${getProfColor(player.p)}`}>
+                                                    {getProfName(player.p)}
+                                                </span>
+                                            </td>
+                                            <td className="px-6 py-4 text-center">
+                                                <div className="inline-flex items-center justify-center min-w-[3rem] px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 font-mono text-lg font-bold text-white shadow-inner">
+                                                    {player.l}
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ))
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
+
+            {/* Milestones (Right Side, 1/3 width) */}
+            <div className="lg:col-span-1">
+                <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
+                    <Target className="w-6 h-6 text-yellow-400" />
+                    Kamienie Milowe
+                </h2>
+                <div className="flex flex-col gap-4">
+                    {milestoneLevels.map(lvl => {
+                        const achieved = milestones[lvl];
+                        return (
+                            <div key={lvl} className={`glass-panel p-4 border-l-4 ${achieved ? 'border-l-yellow-400' : 'border-l-gray-700 opacity-60'} relative overflow-hidden group`}>
+                                {achieved && (
+                                    <div className="absolute top-0 right-0 w-16 h-16 bg-yellow-400/5 rounded-bl-full z-0 transition-transform group-hover:scale-110"></div>
+                                )}
+                                <div className="flex justify-between items-start mb-2 relative z-10">
+                                    <span className="text-2xl font-black text-white/90">{lvl} <span className="text-xs font-medium text-gray-500">lvl</span></span>
+                                    <Award className={`w-6 h-6 ${achieved ? 'text-yellow-400 drop-shadow-[0_0_10px_rgba(250,204,21,0.5)]' : 'text-gray-600'}`} />
+                                </div>
+                                
+                                <div className="relative z-10">
+                                    {achieved ? (
+                                        <div>
+                                            <a 
+                                                href={`https://www.margonem.pl/profile/view,${achieved.a}#char_${achieved.c},luvia`}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className={`font-bold text-lg hover:underline ${getProfColor(achieved.p).split(' ')[0]}`}
+                                            >
+                                                {achieved.n}
+                                            </a>
+                                            <div className="mt-2 space-y-1">
+                                                <p className="text-xs text-gray-400 flex items-center gap-1.5">
+                                                    <Clock className="w-3 h-3" />
+                                                    {new Date(achieved.date).toLocaleString('pl-PL')}
+                                                </p>
+                                                <p className="text-[11px] font-mono text-purple-300">
+                                                    (+{formatDuration(achieved.timeSinceStart)})
+                                                </p>
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <div className="text-xs text-gray-500 italic mt-2">
+                                            Jeszcze nie zdobyty...
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        );
+                    })}
+                </div>
+            </div>
+
         </div>
 
       </div>
