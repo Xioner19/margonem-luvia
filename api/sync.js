@@ -68,7 +68,13 @@ export default async function handler(req, res) {
         }
 
         // Możliwość ręcznego zresetowania kamieni milowych ukrytym parametrem w linku
-        if (!state.milestones || (req.query && req.query.reset === 'kamienie')) {
+        let shouldReset = false;
+        try {
+            if (req.url && req.url.includes('reset=kamienie')) shouldReset = true;
+            if (req.query && req.query.reset === 'kamienie') shouldReset = true;
+        } catch (e) {}
+
+        if (!state.milestones || shouldReset) {
             state.milestones = {};
         }
         const milestoneLevels = [50, 67, 100, 150, 200, 250, 300];
