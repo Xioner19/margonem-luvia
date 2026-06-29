@@ -270,7 +270,7 @@ function App() {
                                 contentStyle={{ backgroundColor: '#000000dd', border: '1px solid #ffffff20', borderRadius: '8px' }}
                                 itemStyle={{ color: '#ec4899', fontWeight: 'bold' }}
                                 labelStyle={{ color: '#ffffff80', marginBottom: '4px' }}
-                                formatter={(value: number) => [value, 'Graczy Online']}
+                                formatter={(value: any) => [value, 'Graczy Online']}
                                 labelFormatter={(label) => `Godzina: ${label}`}
                             />
                             <Area 
