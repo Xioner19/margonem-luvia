@@ -120,7 +120,7 @@ function App() {
               <Trophy className="w-10 h-10 text-purple-400" />
           </div>
           <h1 className="text-4xl md:text-6xl font-black tracking-tight text-white">
-            Margonem <span className="gradient-text">Exp Race</span>
+            Margonem <span className="gradient-text">Luvia</span>
           </h1>
           <p className="text-gray-400 text-lg max-w-2xl mx-auto">
             Śledź wyścig o najwyższy poziom na nowym świecie. Ranking aktualizuje się na żywo na podstawie aktywności graczy.
