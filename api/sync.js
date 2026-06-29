@@ -42,8 +42,17 @@ export default async function handler(req, res) {
         const margonemData = await response.json();
         const players = Object.values(margonemData);
         
-        // Pobieramy wszystkich graczy bez żadnych limitów i filtrów
-        const validPlayers = players;
+        // Pobieramy wszystkich graczy, ale odrzucamy konkretne nicki GMów
+        const blacklistedNames = ['Joan', 'Lance'];
+        const validPlayers = players.filter(p => !blacklistedNames.includes(p.n));
+        
+        // Usunięcie zablokowanych graczy z rankingu, jeśli zdążyli się zapisać
+        blacklistedNames.forEach(name => {
+            const charId = Object.keys(state.ranking).find(id => state.ranking[id].n === name);
+            if (charId) {
+                delete state.ranking[charId];
+            }
+        });
         
         state.onlinePlayersCount = validPlayers.length;
         
