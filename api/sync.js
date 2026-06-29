@@ -23,8 +23,13 @@ export default async function handler(req, res) {
         
     let state = null;
     
+    if (fetchError) {
+        console.error("Supabase fetch error:", fetchError);
+        return res.status(500).json({ error: "Błąd odczytu z bazy danych." });
+    }
+    
     // Jeśli nie ma rekordu, tworzymy domyślny stan
-    if (fetchError || !dbData) {
+    if (!dbData) {
         state = { ranking: {}, serverStartTime: null, lastUpdated: 0, onlinePlayersCount: 0 };
     } else {
         state = dbData.data;

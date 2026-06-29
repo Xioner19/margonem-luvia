@@ -224,14 +224,17 @@ function App() {
                                                 </span>
                                             </td>
                                             <td className="px-6 py-4">
-                                                <a 
-                                                    href={`https://www.margonem.pl/profile/view,${player.a}#char_${player.c},luvia`}
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
-                                                    className="font-medium text-white text-lg hover:text-purple-400 transition-colors cursor-pointer inline-block"
-                                                >
-                                                    {player.n}
-                                                </a>
+                                                <div className="flex items-center gap-2">
+                                                    <div className={`w-2 h-2 rounded-full shrink-0 ${Date.now() - (player.lastSeen || 0) < 120000 ? 'bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)]' : 'bg-gray-600'}`} title={Date.now() - (player.lastSeen || 0) < 120000 ? 'Online' : 'Offline'}></div>
+                                                    <a 
+                                                        href={`https://www.margonem.pl/profile/view,${player.a}#char_${player.c},luvia`}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        className="font-medium text-white text-lg hover:text-purple-400 transition-colors cursor-pointer inline-block"
+                                                    >
+                                                        {player.n}
+                                                    </a>
+                                                </div>
                                             </td>
                                             <td className="px-6 py-4 text-center">
                                                 <span className={`inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium border ${getProfColor(player.p)}`}>
