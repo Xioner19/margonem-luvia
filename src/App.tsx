@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
-import { fetchOnlinePlayers } from './utils/api';
 import type { RankedPlayer } from './types';
-import { Trophy, Clock, Server, Users, RefreshCw } from 'lucide-react';
+import { Trophy, Clock, Users, RefreshCw } from 'lucide-react';
 import { formatDistanceToNowStrict } from 'date-fns';
 import { pl } from 'date-fns/locale';
 
@@ -85,7 +84,6 @@ function App() {
   }
 
   const sortedRanking = Object.values(ranking).sort((a, b) => b.maxLevel - a.maxLevel);
-  const totalPlayersTracked = sortedRanking.length;
 
   return (
     <div className="min-h-screen bg-[#050505] text-gray-200 font-sans selection:bg-purple-500/30">
