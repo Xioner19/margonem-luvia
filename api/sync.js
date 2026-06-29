@@ -43,7 +43,7 @@ export default async function handler(req, res) {
         const players = Object.values(margonemData);
         
         // Pobieramy wszystkich graczy, ale odrzucamy konkretne nicki GMów
-        const blacklistedNames = ['Joan', 'Lance'];
+        const blacklistedNames = ['Joan', 'Lance', 'Veynira', 'Nicjam'];
         const validPlayers = players.filter(p => !blacklistedNames.includes(p.n));
         
         // Usunięcie zablokowanych graczy z rankingu, jeśli zdążyli się zapisać
@@ -67,7 +67,10 @@ export default async function handler(req, res) {
             state.serverStartTime = Date.now();
         }
 
-        if (!state.milestones) state.milestones = {};
+        // Możliwość ręcznego zresetowania kamieni milowych ukrytym parametrem w linku
+        if (!state.milestones || (req.query && req.query.reset === 'kamienie')) {
+            state.milestones = {};
+        }
         const milestoneLevels = [50, 67, 100, 150, 200, 250, 300];
 
         const nextRanking = { ...state.ranking };
