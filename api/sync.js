@@ -44,12 +44,13 @@ export default async function handler(req, res) {
         
         // Pobieramy wszystkich graczy, ale odrzucamy konkretne nicki GMów
         const blacklistedNames = ['Joan', 'Lance', 'Veynira', 'Nicjam', 'Mzr'];
-        const validPlayers = players.filter(p => !blacklistedNames.includes(p.n));
+        const isBlacklisted = (name) => blacklistedNames.map(n => n.toLowerCase().trim()).includes(name.toLowerCase().trim());
+        
+        const validPlayers = players.filter(p => !isBlacklisted(p.n));
         
         // Usunięcie zablokowanych graczy z rankingu, jeśli zdążyli się zapisać
-        blacklistedNames.forEach(name => {
-            const charId = Object.keys(state.ranking).find(id => state.ranking[id].n === name);
-            if (charId) {
+        Object.keys(state.ranking).forEach(charId => {
+            if (isBlacklisted(state.ranking[charId].n)) {
                 delete state.ranking[charId];
             }
         });
