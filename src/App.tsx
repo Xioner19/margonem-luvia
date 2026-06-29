@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 import type { RankedPlayer } from './types';
-import { Trophy, Clock, Users, RefreshCw, Target, Award } from 'lucide-react';
+import { Trophy, Clock, Users, RefreshCw, Target, Award, Activity } from 'lucide-react';
 import { formatDistanceToNowStrict } from 'date-fns';
 import { pl } from 'date-fns/locale';
+import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
 
 function App() {
   const world = 'luvia';
@@ -14,6 +15,10 @@ function App() {
   const [error, setError] = useState<string | null>(null);
   const [onlinePlayersCount, setOnlinePlayersCount] = useState<number>(0);
   const [profStats, setProfStats] = useState<Record<string, number>>({});
+  const [activity, setActivity] = useState<Array<{time: number, count: number}>>([]);
+  
+  type TimeRange = 1 | 3 | 7 | 30 | 'all';
+  const [timeRange, setTimeRange] = useState<TimeRange>(1);
 
   // Global state handled by Vercel Serverless Backend
 
@@ -35,6 +40,7 @@ function App() {
             setServerStartTime(data.serverStartTime);
             setOnlinePlayersCount(data.onlinePlayersCount || 0);
             setProfStats(data.onlineProfStats || {});
+            setActivity(data.activity || []);
         }
       } catch (e) {
         if (mounted) setError("Błąd podczas pobierania.");
@@ -114,6 +120,19 @@ function App() {
   const sortedRanking = Object.values(ranking).sort((a, b) => b.maxLevel - a.maxLevel);
   const milestoneLevels = [50, 67, 100, 150, 200, 250, 300];
 
+  const filteredActivity = activity.filter(a => {
+      if (timeRange === 'all') return true;
+      const daysInMs = timeRange * 24 * 60 * 60 * 1000;
+      return Date.now() - a.time <= daysInMs;
+  });
+
+  const chartData = filteredActivity.map(a => ({
+      ...a,
+      timeFormatted: new Date(a.time).toLocaleString('pl-PL', { 
+          day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' 
+      })
+  }));
+
   return (
     <div className="min-h-screen bg-[#050505] text-gray-200 font-sans selection:bg-purple-500/30">
       
@@ -188,6 +207,87 @@ function App() {
                         </div>
                     ))}
                 </div>
+            </div>
+        </div>
+
+        {/* Activity Chart */}
+        <div className="glass-panel p-4 md:p-6 mb-12">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
+                <h2 className="text-xl md:text-2xl font-bold text-white flex items-center gap-3">
+                    <Activity className="w-6 h-6 text-pink-400" />
+                    Aktywność na serwerze
+                </h2>
+                <div className="flex gap-2 bg-black/40 p-1.5 rounded-lg border border-white/5 overflow-x-auto w-full md:w-auto">
+                    {[
+                        { label: '1d', value: 1 },
+                        { label: '3d', value: 3 },
+                        { label: '7d', value: 7 },
+                        { label: '30d', value: 30 },
+                        { label: 'Max', value: 'all' }
+                    ].map(range => (
+                        <button
+                            key={range.value}
+                            onClick={() => setTimeRange(range.value as TimeRange)}
+                            className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors whitespace-nowrap flex-1 md:flex-none ${
+                                timeRange === range.value 
+                                    ? 'bg-pink-500/20 text-pink-400 border border-pink-500/30' 
+                                    : 'text-gray-400 hover:text-white hover:bg-white/5'
+                            }`}
+                        >
+                            {range.label}
+                        </button>
+                    ))}
+                </div>
+            </div>
+            
+            <div className="h-[300px] w-full">
+                {chartData.length > 0 ? (
+                    <ResponsiveContainer width="100%" height="100%">
+                        <AreaChart data={chartData} margin={{ top: 5, right: 0, left: -20, bottom: 0 }}>
+                            <defs>
+                                <linearGradient id="colorCount" x1="0" y1="0" x2="0" y2="1">
+                                    <stop offset="5%" stopColor="#ec4899" stopOpacity={0.3}/>
+                                    <stop offset="95%" stopColor="#ec4899" stopOpacity={0}/>
+                                </linearGradient>
+                            </defs>
+                            <CartesianGrid strokeDasharray="3 3" stroke="#ffffff10" vertical={false} />
+                            <XAxis 
+                                dataKey="timeFormatted" 
+                                stroke="#ffffff50" 
+                                fontSize={10} 
+                                tickLine={false}
+                                axisLine={false}
+                                minTickGap={30}
+                            />
+                            <YAxis 
+                                stroke="#ffffff50" 
+                                fontSize={10} 
+                                tickLine={false}
+                                axisLine={false}
+                                allowDecimals={false}
+                            />
+                            <Tooltip 
+                                contentStyle={{ backgroundColor: '#000000dd', border: '1px solid #ffffff20', borderRadius: '8px' }}
+                                itemStyle={{ color: '#ec4899', fontWeight: 'bold' }}
+                                labelStyle={{ color: '#ffffff80', marginBottom: '4px' }}
+                                formatter={(value: number) => [value, 'Graczy Online']}
+                                labelFormatter={(label) => `Godzina: ${label}`}
+                            />
+                            <Area 
+                                type="monotone" 
+                                dataKey="count" 
+                                stroke="#ec4899" 
+                                strokeWidth={2}
+                                fillOpacity={1} 
+                                fill="url(#colorCount)" 
+                            />
+                        </AreaChart>
+                    </ResponsiveContainer>
+                ) : (
+                    <div className="flex items-center justify-center h-full text-gray-500 italic text-sm">
+                        Zbyt mało danych do narysowania wykresu. Trwa zbieranie danych...
+                    </div>
+                )}
             </div>
         </div>
 
