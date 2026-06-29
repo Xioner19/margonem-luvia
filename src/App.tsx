@@ -104,13 +104,9 @@ function App() {
 
   const getPlayerTimeOnline = (player: RankedPlayer) => {
       let time = player.totalTimeOnline || 0;
-      if (player.sessionStart) {
-          const isOnline = Date.now() - (player.lastSeen || 0) < 120000;
-          if (isOnline) {
-              time += (Date.now() - player.sessionStart);
-          } else {
-              time += (player.lastSeen - player.sessionStart);
-          }
+      const isOnline = Date.now() - (player.lastSeen || 0) < 120000;
+      if (isOnline) {
+          time += (Date.now() - (player.lastSeen || Date.now()));
       }
       return time;
   };

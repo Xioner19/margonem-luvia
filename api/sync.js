@@ -79,7 +79,6 @@ export default async function handler(req, res) {
                     ...p, 
                     maxLevel: currentLevel, 
                     lastSeen: now,
-                    sessionStart: now,
                     totalTimeOnline: 0
                 };
             } else {
@@ -88,9 +87,12 @@ export default async function handler(req, res) {
                 rp.maxLevel = Math.max(rp.maxLevel || 0, currentLevel);
                 rp.p = p.p;
                 
-                if (!rp.sessionStart) {
-                    rp.sessionStart = now;
+                const elapsed = now - (rp.lastSeen || now);
+                // Dopisuj czas tylko jeśli skrypt był uruchamiany regularnie (max 5 minut przerwy)
+                if (elapsed > 0 && elapsed <= 300000) {
+                    rp.totalTimeOnline = (rp.totalTimeOnline || 0) + elapsed;
                 }
+                
                 rp.lastSeen = now;
             }
             
@@ -110,18 +112,26 @@ export default async function handler(req, res) {
             });
         });
 
-        // Wylogowani gracze - zamykanie sesji
-        Object.values(nextRanking).forEach(rp => {
-            if (!onlinePlayerIds.has(rp.c)) {
-                if (rp.sessionStart) {
-                    const sessionDuration = rp.lastSeen - rp.sessionStart;
-                    if (sessionDuration > 0) {
-                        rp.totalTimeOnline = (rp.totalTimeOnline || 0) + sessionDuration;
-                    }
-                    delete rp.sessionStart;
-                }
+        // Zapisywanie aktywności na wykres (1 punkt = najwyższa liczba graczy w danej godzinie)
+        if (!state.activity) state.activity = [];
+        const currentHour = new Date(now).setMinutes(0, 0, 0); // start of current hour
+        
+        if (state.activity.length === 0 || state.activity[state.activity.length - 1].time !== currentHour) {
+            state.activity.push({
+                time: currentHour,
+                count: validPlayers.length
+            });
+            // Ogranicz do 30 dni (30 dni * 24 godziny = 720 punktów)
+            if (state.activity.length > 720) {
+                state.activity.shift();
             }
-        });
+        } else {
+            // Zaktualizuj peak dla obecnej godziny
+            state.activity[state.activity.length - 1].count = Math.max(
+                state.activity[state.activity.length - 1].count, 
+                validPlayers.length
+            );
+        }
         
         state.ranking = nextRanking;
         state.lastUpdated = Date.now();
